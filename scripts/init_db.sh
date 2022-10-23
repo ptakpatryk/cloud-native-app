@@ -14,23 +14,23 @@ if ! [ -x "$(command -v sqlx)" ]; then
   exit 1
 fi
 
+DB_USER="${POSTGRES_USER:=postgres}"
+DB_PASSWORD="${POSTGRES_PASSWORD:=password}"
+DB_NAME="${POSTGRES_DB:=newsletter}"
+DB_PORT="${POSTGRES_PORT:=5432}"
+DB_HOST="${POSTGRES_HOST:=localhost}"
+
 if [[ -z  "${SKIP_DOCKER}" ]]
 then
-  DB_USER=${POSTGRES_USER:=postgres}
-  DB_PASSWORD=${POSTGRES_PASSWORD:=password}
-  DB_NAME=${POSTGRES_DB:=newsletter}
-  DB_PORT=${POSTGRES_PORT:=5432}
-  DB_HOST=${POSTGRES_HOST:=localhost}
+  docker run \
+    -e POSTGRES_USER=${DB_USER} \
+    -e POSTGRES_PASSWORD=${DB_PASSWORD} \
+    -e POSTGRES_DB=${DB_NAME} \
+    -p "${DB_PORT}":5432 \
+    -d postgres \
+    postgres -N 1000
+      # ^ Increased maximum number of connections for testing purposes
 fi
-
-docker run \
-  -e POSTGRES_USER=${DB_USER} \
-  -e POSTGRES_PASSWORD=${DB_PASSWORD} \
-  -e POSTGRES_DB=${DB_NAME} \
-  -p "${DB_PORT}":5432 \
-  -d postgres \
-  postgres -N 1000
-# ^ Increased maximum number of connections for testing purposes
 
 # Keep pinging Postgres until it's ready to accept commands
 until PGPASSWORD="${DB_PASSWORD}" psql -h "${DB_HOST}" -U "${DB_USER}" -p "${DB_PORT}" -d "postgres" -c '\q'; do
