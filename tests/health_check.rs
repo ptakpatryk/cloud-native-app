@@ -1,14 +1,14 @@
 //! tests/health_check.rs
 
+use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
-use zero2prod::telemetry::{get_subscriber, init_subscriber};
 use std::net::TcpListener;
 use uuid::Uuid;
+use zero2prod::telemetry::{get_subscriber, init_subscriber};
 use zero2prod::{
     configuration::{get_configuration, DatabaseSettings},
     startup::run,
 };
-use once_cell::sync::Lazy;
 
 static TRACING: Lazy<()> = Lazy::new(|| {
     let default_filter_level = "info".to_string();
